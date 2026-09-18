@@ -12,6 +12,7 @@
     "test:watch": "jest --watch",
     "test:integration": "jest --config jest.integration.config.js",
     "eval": "tsx src/eval/run.ts",
+    "demo": "tsx src/eval/demo.ts",
     "db:push": "prisma db push",
     "db:studio": "prisma studio"
   },
