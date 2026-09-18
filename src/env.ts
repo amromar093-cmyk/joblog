@@ -8,6 +8,11 @@ const schema = z.object({
   JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 characters"),
   PORT: z.coerce.number().int().positive().default(4000),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  // Optional on purpose — the AI routes 503 with a clear message if these
+  // are missing (see src/ai/*), but their absence must never block boot or
+  // break `npm test`/CI, which has no reason to hold paid API keys.
+  ANTHROPIC_API_KEY: z.string().optional(),
+  VOYAGE_API_KEY: z.string().optional(),
 });
 
 export const env = schema.parse(process.env);

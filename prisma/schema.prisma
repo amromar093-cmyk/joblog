@@ -8,12 +8,37 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
-  passwordHash String
-  fullName     String
-  createdAt    DateTime      @default(now())
-  applications Application[]
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  fullName      String
+  createdAt     DateTime       @default(now())
+  applications  Application[]
+  resumeBullets ResumeBullet[]
+}
+
+/**
+ * One line of resume experience, embedded once at write time so job-match
+ * scoring never has to call the embeddings API per request — only when a
+ * bullet is added or edited.
+ */
+model ResumeBullet {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text      String
+  /**
+   * Voyage `voyage-3.5` embedding of `text`. Plain float array rather than
+   * pgvector — this app scores a handful of bullets per request (cosine
+   * similarity in JS is plenty), and it keeps the schema runnable on any
+   * stock Postgres, including CI's ephemeral container, with no extension
+   * to install. pgvector + an ANN index is the move once this is scoring
+   * thousands of bullets per query, not a dozen.
+   */
+  embedding Float[]
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 enum ApplicationStatus {
@@ -39,12 +64,26 @@ model Application {
   updatedAt DateTime           @updatedAt
   events    ApplicationEvent[]
 
+  // --- AI fit-match (set by POST /:id/match; null until first run) ---
+  jobDescription String?
+  matchScore     Float?
+  matchedSkills  String[]
+  missingSkills  String[]
+
+  // --- AI cover-letter draft (set by POST /:id/cover-letter) ---
+  // bulletIds is the agent's citation trail: every claim in coverLetter
+  // must trace back to one of these ResumeBullet ids — see src/ai/claude.ts.
+  coverLetter    String?
+  coverBulletIds String[]
+
   @@index([userId])
   @@index([userId, status])
 }
 
-/** A timestamped note on one application — a status change, a follow-up call,
- *  an interview date. Keeps a real audit trail instead of overwriting `notes`. */
+/**
+ * A timestamped note on one application — a status change, a follow-up call,
+ * an interview date. Keeps a real audit trail instead of overwriting `notes`.
+ */
 model ApplicationEvent {
   id            String      @id @default(uuid())
   applicationId String

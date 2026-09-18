@@ -14,3 +14,4 @@ export const unauthorized = (msg = "Sign in required.") => new ApiError(401, msg
 export const forbidden = (msg = "Not yours to change.") => new ApiError(403, msg);
 export const notFound = (msg = "Not found.") => new ApiError(404, msg);
 export const conflict = (msg: string) => new ApiError(409, msg);
+export const serviceUnavailable = (msg: string) => new ApiError(503, msg);

@@ -7,6 +7,7 @@ export const app = createApp();
 export async function resetDb() {
   await prisma.applicationEvent.deleteMany();
   await prisma.application.deleteMany();
+  await prisma.resumeBullet.deleteMany();
   await prisma.user.deleteMany();
 }
 

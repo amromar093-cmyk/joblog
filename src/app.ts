@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { authRouter } from "./routes/auth.routes";
 import { applicationsRouter } from "./routes/applications.routes";
+import { resumeRouter } from "./routes/resume.routes";
 import { errorHandler } from "./errorHandler";
 
 /** Built as a plain factory (not a side-effecting module-level `app`) so
@@ -15,6 +16,7 @@ export function createApp() {
   app.get("/health", (_req, res) => res.json({ ok: true }));
   app.use("/api/auth", authRouter);
   app.use("/api/applications", applicationsRouter);
+  app.use("/api/resume", resumeRouter);
 
   app.use((_req, res) => res.status(404).json({ error: "Not found." }));
   app.use(errorHandler);

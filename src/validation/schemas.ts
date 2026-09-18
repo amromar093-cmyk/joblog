@@ -37,3 +37,13 @@ export type AddEventInput = z.infer<typeof addEventSchema>;
 export const listApplicationsQuerySchema = z.object({
   status: z.enum(APPLICATION_STATUSES).optional(),
 });
+
+export const addResumeBulletSchema = z.object({
+  text: z.string().trim().min(1, "Bullet text is required.").max(500, "Keep a bullet under 500 characters."),
+});
+export type AddResumeBulletInput = z.infer<typeof addResumeBulletSchema>;
+
+export const matchApplicationSchema = z.object({
+  jobDescription: z.string().trim().min(20, "Paste the full job description (at least 20 characters).").max(20000),
+});
+export type MatchApplicationInput = z.infer<typeof matchApplicationSchema>;
